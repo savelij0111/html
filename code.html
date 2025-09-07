@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Калькулятор времени вызова</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #111;
+      color: #eee;
+      padding: 20px;
+      font-size: 18px;
+    }
+    input, button {
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 18px;
+      width: 100%;
+      box-sizing: border-box;
+      border-radius: 5px;
+      border: none;
+    }
+    button {
+      background: #4caf50;
+      color: white;
+      cursor: pointer;
+    }
+    #output {
+      margin-top: 20px;
+      font-weight: bold;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <h2>Калькулятор времени вызова</h2>
+
+  <label>Ваш номер в очереди:</label>
+  <input type="number" id="yourNumber" placeholder="Например, 876" inputmode="numeric">
+
+  <label>Машин прошло за 24 часа:</label>
+  <input type="number" id="past24h" placeholder="Например, 637" inputmode="numeric">
+
+  <label>Машин направлено за последний час:</label>
+  <input type="number" id="lastHour" placeholder="Например, 45" inputmode="numeric">
+
+  <button type="button" id="calcBtn">Рассчитать</button>
+
+  <div id="output"></div>
+
+  <script>
+    window.addEventListener("DOMContentLoaded", function () {
+      const btn = document.getElementById("calcBtn");
+      btn.addEventListener("click", handleClick);
+      btn.addEventListener("touchstart", handleClick, { passive: true });
+
+      function handleClick(e) {
+        if (document.activeElement) {
+          document.activeElement.blur();
+        }
+        e.preventDefault();
+
+        const yourNumber = parseFloat(document.getElementById("yourNumber").value);
+        const past24h = parseFloat(document.getElementById("past24h").value);
+        const lastHour = parseFloat(document.getElementById("lastHour").value);
+
+        if (isNaN(yourNumber) || isNaN(past24h) || isNaN(lastHour) || yourNumber <= 0 || past24h <= 0 || lastHour < 0) {
+          document.getElementById("output").innerText = "Введите корректные значения.";
+          return;
+        }
+
+        const avgPerHour = past24h / 24;
+        const adjustedRate = (avgPerHour + lastHour) / 2;
+        const hoursToWait = yourNumber / adjustedRate;
+
+        const now = new Date();
+        const callTime = new Date(now.getTime() + hoursToWait * 3600 * 1000);
+
+        const dateStr = callTime.toLocaleDateString('ru-RU');
+        const timeStr = callTime.toLocaleTimeString('ru-RU');
+
+        document.getElementById("output").innerHTML = `
+          📅 <strong>Примерное время вызова:</strong> ${dateStr}, ${timeStr}<br>
+          ⏳ <strong>Осталось:</strong> ${hoursToWait.toFixed(1)} часов<br>
+          🚗 <strong>Текущая скорость:</strong> ${adjustedRate.toFixed(2)} машин/час
+        `;
+      }
+    });
+  </script>
+</body>
+</html>
